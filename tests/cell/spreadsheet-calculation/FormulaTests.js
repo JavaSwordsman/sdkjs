@@ -739,6 +739,7 @@ $(function () {
 	});
 
 	QUnit.test("Test: \"Parse intersection\"", function (assert) {
+		ws.getRange2("A1:Z100").cleanAll();
 
 		ws.getRange2("A7").setValue("1");
 		ws.getRange2("A8").setValue("2");
@@ -13942,6 +13943,8 @@ $(function () {
 
 	QUnit.test("Test: \"CONCAT\"", function (assert) {
 
+		ws.getRange2("AA1:BB7").cleanAll();
+
 		ws.getRange2("AA1").setValue("a1");
 		ws.getRange2("AA2").setValue("a2");
 		ws.getRange2("AA4").setValue("a4");
@@ -13978,6 +13981,9 @@ $(function () {
 	});
 
 	QUnit.test("Test: \"CONCATENATE\"", function (assert) {
+		wb.dependencyFormulas.unlockRecal();
+		ws.getRange2("AA1:BB7").cleanAll();
+		ws.getRange2("A1:Z100").cleanAll();
 
 		ws.getRange2("AA2").setValue("brook trout");
 		ws.getRange2("AA3").setValue("species");
@@ -14010,25 +14016,26 @@ $(function () {
 		assert.strictEqual(oParser.calculate().getValue(), "TRUEtest", 'CONCATENATE(TRUE,"test")');
 
 		// bug 61293
-		ws.getRange2("A100").setValue("Val");
-		ws.getRange2("B100").setValue("=ROUND(0.65,1)");
-		ws.getRange2("B101").setValue("=ROUND(0.1+0.2,2)");
-		ws.getRange2("B102").setValue("=ROUND(183.64,2)");
+		ws.getRange2("A1").setValue("Val");
+		ws.getRange2("B1").setValue('=ROUND(0.65,1)');
+		ws.getRange2("B2").setValue('=ROUND(0.1+0.2,2)');
+		ws.getRange2("B3").setValue('=ROUND(183.64,2)');
 
-		oParser = new parserFormula('CONCATENATE(A100," ",B100)', "A2", ws);
-		assert.ok(oParser.parse(), 'CONCATENATE(Val," ",=ROUND(0.65,1))');
-		assert.strictEqual(oParser.calculate().getValue(), "Val 0.7", 'CONCATENATE(Val," ",=ROUND(0.65,1))');
+		oParser = new parserFormula('CONCATENATE(A1," ",B1)', "A2", ws);
+		assert.ok(oParser.parse(), 'CONCATENATE(Val," ",ROUND(0.65,1))');
+		assert.strictEqual(oParser.calculate().getValue(), "Val 0.7", 'CONCATENATE(Val," ",ROUND(0.65,1))');
 
-		oParser = new parserFormula('CONCATENATE(A100," ",B101)', "A2", ws);
-		assert.ok(oParser.parse(), 'CONCATENATE(Val," ",=ROUND(0.1+0.2,2))');
-		assert.strictEqual(oParser.calculate().getValue(), "Val 0.3", 'CONCATENATE(Val," ",=ROUND(0.1+0.2,2))');
+		oParser = new parserFormula('CONCATENATE(A1," ",B2)', "A2", ws);
+		assert.ok(oParser.parse(), 'CONCATENATE(Val," ",ROUND(0.1+0.2,2))');
+		assert.strictEqual(oParser.calculate().getValue(), "Val 0.3", 'CONCATENATE(Val," ",ROUND(0.1+0.2,2))');
 
-		oParser = new parserFormula('CONCATENATE(A100," ",B102)', "A2", ws);
-		assert.ok(oParser.parse(), 'CONCATENATE(Val," ",=ROUND(183.64,2))');
-		assert.strictEqual(oParser.calculate().getValue(), "Val 183.64", 'CONCATENATE(Val," ",=ROUND(183.64,2))');
-
+		oParser = new parserFormula('CONCATENATE(A1," ",B3)', "A2", ws);
+		assert.ok(oParser.parse(), 'CONCATENATE(Val," ",ROUND(183.64,2))');
+		assert.strictEqual(oParser.calculate().getValue(), "Val 183.64", 'CONCATENATE(Val," ",ROUND(183.64,2))');
 
 		testArrayFormula2(assert, "CONCATENATE", 1, 8);
+
+		wb.dependencyFormulas.lockRecal();
 	});
 
 	QUnit.test("Test: \"&\"", function (assert) {
