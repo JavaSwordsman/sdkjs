@@ -2657,6 +2657,46 @@ parserHelp.setDigitSeparator(AscCommon.g_oDefaultCultureInfo.NumberDecimalSepara
 		this.countElementInRow[this.rowCount - 1]++;
 		this.countElement++;
 	};
+	cArray.prototype.setElementRowCol = function (element, row, col) {
+		if (this.array.length === 0 || !element || row < 0 || col < 0 || row > this.rowCount || col > this.getCountElementInRow() || this.array[row].length === 0) {
+			return;
+		}
+
+		this.array[row][col] = element;
+	};
+	cArray.prototype.fillArray = function (element, row, col) {
+		if (!element || !row || !col) {
+			return
+		}
+
+		if (!this.countElementInRow) {
+			this.countElementInRow = [];
+		}
+
+		let newArr = new Array(row);
+		for (let i = 0; i < newArr.length; i++) {
+			newArr[i] = new Array(col).fill(element);
+			this.countElementInRow[i] = col;
+		}
+
+		this.array = newArr;
+		this.rowCount = row;
+		this.countElement = row * col;
+	};
+	cArray.prototype.fillImmutableArray = function (element, row, col) {
+		if (!element || !row || !col) {
+			return
+		}
+
+		if (!this.countElementInRow) {
+			this.countElementInRow = [];
+		}
+
+		this.array = new Array(row).fill(new Array(col).fill(element));
+		this.countElementInRow = new Array(row).fill(col);
+		this.rowCount = row;
+		this.countElement = row * col;
+	};
 	cArray.prototype.getRow = function (rowIndex) {
 		if (rowIndex < 0 || rowIndex > this.array.length - 1) {
 			return null;
@@ -8760,14 +8800,38 @@ function parserFormula( formula, parent, _ws ) {
 		}
 
 		if (dimension) {
-			var oBBox = dimension.bbox, minC = Math.min( ws.getColDataLength(), oBBox.c2 ), minR = Math.min( ws.cellsByColRowsCount - 1, oBBox.r2 );
-			var rowCount = (minR - oBBox.r1) >= 0 ? minR - oBBox.r1 + 1 : 0;
-			var colCount = (minC - oBBox.c1) >= 0 ? minC - oBBox.c1 + 1 : 0;
+			let originalRowCount = dimension.row, originalColCount = dimension.col,
+				oBBox = dimension.bbox, minC = Math.min( ws.getColDataLength(), oBBox.c2 ), minR = Math.min( ws.cellsByColRowsCount - 1, oBBox.r2 ),
+				rowCount = (minR - oBBox.r1) >= 0 ? minR - oBBox.r1 + 1 : 0, colCount = (minC - oBBox.c1) >= 0 ? minC - oBBox.c1 + 1 : 0;
 
-			for ( var iRow = 0; iRow < rowCount; iRow++, iRow < rowCount ? retArr.addRow() : true ) {
-				for ( var iCol = 0; iCol < colCount; iCol++ ) {
-					_arg0 = area[iRow] && area[iRow][iCol] ? area[iRow][iCol] : new cEmpty();
-					retArr.addElement(_arg0);
+			let empty = new cEmpty();
+			if (originalRowCount > rowCount || originalColCount > colCount) {
+				// if the original size does not coincide with the received one, then further (by row or column) there are only empty cells
+				// in this case fill the array with empty values
+				// then go through non-empty elements and change the values ​​in the empty array
+				if (rowCount === 0 || colCount === 0) {
+					// full empty array. use lightweight array filling function
+					retArr.fillImmutableArray(empty, originalRowCount, originalColCount);
+					// retArr.fillArray(empty, originalRowCount, originalColCount);
+				} else {
+					retArr.fillArray(empty, originalRowCount, originalColCount);
+					
+					for ( let iRow = 0; iRow < rowCount; iRow++ ) {
+						for ( let iCol = 0; iCol < colCount; iCol++ ) {
+							_arg0 = area[iRow] && area[iRow][iCol] ? area[iRow][iCol] : null;
+							if (!_arg0) {
+								continue
+							}
+							retArr.setElementRowCol(_arg0, iRow, iCol);
+						}
+					}
+				}
+			} else {
+				for ( let iRow = 0; iRow < rowCount; iRow++, iRow < rowCount ? retArr.addRow() : true ) {
+					for ( let iCol = 0; iCol < colCount; iCol++ ) {
+						_arg0 = area[iRow] && area[iRow][iCol] ? area[iRow][iCol] : new cEmpty();
+						retArr.addElement(_arg0);
+					}
 				}
 			}
 		}

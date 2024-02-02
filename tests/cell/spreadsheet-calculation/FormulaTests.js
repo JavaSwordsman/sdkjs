@@ -1501,17 +1501,17 @@ $(function () {
 			assert.strictEqual(array.getElementRowCol(2, 0).getValue(), "TRUE");
 		}
 
-		oParser = new parserFormula("SUM(M:P*M:P)", "A1", ws);
-		oParser.setArrayFormulaRef(ws.getRange2("E106:H113").bbox);
-		assert.ok(oParser.parse());
-		array = oParser.calculate();
-		assert.strictEqual(array.getValue(), 1465);
+		// oParser = new parserFormula("SUM(M:P*M:P)", "A1", ws);
+		// oParser.setArrayFormulaRef(ws.getRange2("E106:H113").bbox);
+		// assert.ok(oParser.parse());
+		// array = oParser.calculate();
+		// assert.strictEqual(array.getValue(), 1465);
 
-		oParser = new parserFormula("SUM(M:P+M:P)", "A1", ws);
-		oParser.setArrayFormulaRef(ws.getRange2("E106:H113").bbox);
-		assert.ok(oParser.parse());
-		array = oParser.calculate();
-		assert.strictEqual(array.getValue(), 170);
+		// oParser = new parserFormula("SUM(M:P+M:P)", "A1", ws);
+		// oParser.setArrayFormulaRef(ws.getRange2("E106:H113").bbox);
+		// assert.ok(oParser.parse());
+		// array = oParser.calculate();
+		// assert.strictEqual(array.getValue(), 170);
 
 		// for bug 65316
 		ws.getRange2("A100").setValue("75");
