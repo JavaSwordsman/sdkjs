@@ -3270,6 +3270,12 @@
 					
 					this.onUpdateOverlay();
 				}
+				else if (oDoc.mouseDownAnnot && oDoc.mouseDownAnnot.IsFreeText() && oDoc.mouseDownAnnot.IsInTextBox()) {
+					oThis.Api.WordControl.m_oDrawingDocument.showTarget(true)
+					let oContent = oDoc.mouseDownAnnot.GetDocContent();
+					oContent.MoveCursorLeft(true === e.ShiftKey, true === e.CtrlKey);
+					oContent.RecalculateCurPos();
+				}
 				else if (!this.isFocusOnThumbnails && this.isVisibleHorScroll)
 				{
 					this.m_oScrollHorApi.scrollByX(-40);
@@ -3346,6 +3352,12 @@
 					}
 
 					this.onUpdateOverlay();
+				}
+				else if (oDoc.mouseDownAnnot && oDoc.mouseDownAnnot.IsFreeText() && oDoc.mouseDownAnnot.IsInTextBox()) {
+					oThis.Api.WordControl.m_oDrawingDocument.showTarget(true)
+					let oContent = oDoc.mouseDownAnnot.GetDocContent();
+					oContent.MoveCursorRight(true === e.ShiftKey, true === e.CtrlKey);
+					oContent.RecalculateCurPos();
 				}
 				else if (!this.isFocusOnThumbnails && this.isVisibleHorScroll)
 				{
